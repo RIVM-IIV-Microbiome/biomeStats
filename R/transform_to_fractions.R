@@ -1,68 +1,74 @@
 #' @title Transform to Fractions
 #' @details Prepares the taxa abundance table for testing.
 #' @param x \code{\link{phyloseq-class}} object
-#' @param filter.abund remove taxa with less than this abundance in total dataset
+#' @param det.thres remove taxa with less than this abundance in total dataset
+#' @param prev.thres remove taxa with less than this prevalence in total dataset
+#'
+#' @examples
+#' # data("ili_data")
+#' # ps <- ili_data
+#' # gen_tab <- transform_to_fractions(ps, det.thres= 0.0001, prev.thres=5/100)
+#' @importFrom tidyr pivot_wider
+#' @importFrom tibble rownames_to_column column_to_rownames
 #' @export
 
-transform_to_fractions <- function(x, filter.abund=0.1){
+transform_to_fractions <- function(x,
+                                   det.thres = 0.001,
+                                   prev.thres=5/100){
 
   microbiome.data <- microbiome.data.1 <- codes.bacteria <- ID <- asv_tab <- NULL
-  Shannon <- aux.data.i <- sum.i <- average <- SD <- prop.positive <- CV <- entropy <- NULL
+  Shannon <- value.reabund <- value <- variable <- average <- SD <- NULL
+  prop.positive <- CV <- entropy <- NULL
   asv_tab.2 <- other <- test.taxa <- asv_tab.test <- NULL
 
-  microbiome.data <- as.data.frame(microbiome::abundances(x))
-  microbiome.data <- dplyr::as_tibble(microbiome.data, rownames = "sequence")
-  codes.bacteria <- microbiome.data$sequence
+  #x <- ps
 
-  microbiome.data.1 <- t(as.matrix(microbiome.data[,-1]))
-  microbiome.data.1 <- data.frame(microbiome.data.1)
+  microbiome.data <- t(as.data.frame(microbiome::abundances(x)))
+  asv_tab <- dplyr::as_tibble(microbiome.data, rownames = "ID")
 
-  ID <- row.names(microbiome.data.1)
-  row.names(microbiome.data.1) <- NULL
-  names(microbiome.data.1) <- as.character(codes.bacteria)
-
-  asv_tab <- cbind(ID, microbiome.data.1)
   #names(asv_tab)[1] <- "ID"
   # get column of bacterial abundances
-  message("calculating ....")
-  columns.of.bacteria <- (2:ncol(asv_tab))
-  Shannon <- function(p){entropy <- ifelse(p>0,-p*log(p),0); return(entropy)}
-  asv_tab <- base::transform(asv_tab,
-                             average=rep(0,nrow(asv_tab)),
-                             SD=rep(0,nrow(asv_tab)),
-                             prop.positive=rep(0,nrow(asv_tab)),
-                             entropy=rep(0,nrow(asv_tab)))
+  #message("calculating ....")
+  Shannon <- function(p){
+    entropy <- ifelse(p>0,-p*log(p),0);
+    return(entropy)
+    }
 
-  for(i in (1:nrow(asv_tab))){
-    aux.data.i <- asv_tab[i,columns.of.bacteria]
-    aux.data.i <- as.numeric(aux.data.i)
-    asv_tab[i,]$average <- mean(aux.data.i,na.rm=TRUE)
-    asv_tab[i,]$SD <- sd(aux.data.i,na.rm=TRUE)
-    asv_tab[i,]$prop.positive <- mean(aux.data.i>0,na.rm=TRUE)
-    sum.i <- sum(aux.data.i,na.rm=TRUE)
-    asv_tab[i,columns.of.bacteria] <- asv_tab[i,columns.of.bacteria]/sum.i
-    asv_tab[i,]$entropy <- sum(sapply(asv_tab[i,columns.of.bacteria],Shannon))
-  }
-  # names(data.set); str(data.set), edit(data.set)
-  asv_tab <- base::transform(asv_tab,CV=SD/average)
+  asv_tab2 <- reshape2::melt(asv_tab)
+  asv_tab2 <- asv_tab2 %>%
+    group_by(ID) %>%
+    mutate(average = mean(value, na.rm = TRUE),
+           SD = sd(value, na.rm = TRUE),
+           prop.positive = mean(value > 0, na.rm = TRUE),
+           sum.i = sum(value,na.rm=TRUE),
+           value.reabund = value/sum.i,
+           entropy = sum(Shannon(value.reabund)),
+           CV=SD/average) %>% ungroup()
 
+  #head(subset(asv_tab2, ID=="052_056_S56"))
+
+  #other <- c("average","SD","prop.positive","entropy","CV")
+  asv_tab_sub <-  asv_tab2 %>%
+    select(ID,average,SD,prop.positive,entropy,CV) %>%
+    distinct(ID, .keep_all = T)
+
+  asv_tabr <-  asv_tab2 %>%
+    tidyr::pivot_wider(id_cols = ID,
+                       names_from = variable,
+                       values_from = value.reabund) %>%
+    as.data.frame() %>% tibble::column_to_rownames("ID")
+
+  asv_tab.core <- asv_tabr[,core_members(t(asv_tabr),
+                                       detection = det.thres,
+                                       prevalence =  prev.thres)]
+
+  asv_tab.core <- asv_tab.core %>%
+    tibble::rownames_to_column("ID") %>%
+    left_join(asv_tab_sub, by="ID")
   # Filter our data
-  # get col number with last taxa value
-  subcols <- ncol(asv_tab) - 5
 
-  asv_tab.2 <- asv_tab[,c(2:subcols)]
-  asv_tab.2 <- asv_tab.2[,colSums(asv_tab.2) >= filter.abund]
-  #colnames(asv_tab.2)
+  #message("done ....")
 
-  test.taxa <- names(asv_tab.2)
-
-  # last 5 cols
-  other <- c("average","SD","prop.positive","entropy","CV")
-
-  asv_tab.test <- subset(asv_tab,select=c("ID",test.taxa,other))
-
-  message("done ....")
-
-  return(asv_tab.test)
+  return(asv_tab.core)
 
 }

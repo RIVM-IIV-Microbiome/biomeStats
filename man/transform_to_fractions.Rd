@@ -4,16 +4,24 @@
 \alias{transform_to_fractions}
 \title{Transform to Fractions}
 \usage{
-transform_to_fractions(x, filter.abund = 0.1)
+transform_to_fractions(x, det.thres = 0.001, prev.thres = 5/100)
 }
 \arguments{
 \item{x}{\code{\link{phyloseq-class}} object}
 
-\item{filter.abund}{remove taxa with less than this abundance in total dataset}
+\item{det.thres}{remove taxa with less than this abundance in total dataset}
+
+\item{prev.thres}{remove taxa with less than this prevalence in total dataset}
 }
 \description{
 Transform to Fractions
 }
 \details{
 Prepares the taxa abundance table for testing.
+}
+\examples{
+# data("ili_data")
+# ps <- ili_data
+# gen_tab <- transform_to_fractions(ps, det.thres= 0.0001, prev.thres=5/100)
+
 }
