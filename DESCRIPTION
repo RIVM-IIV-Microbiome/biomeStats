@@ -1,0 +1,35 @@
+Package: biomestats
+Type: Package
+Title: Test Taxa Metadata Variable Associations
+Version: 00.00.01
+Authors@R: person("Sudarshan A", "Shetty", email = "sudarshanshetty9@gmail.com", role = c("aut", "cre"))
+Maintainer: Sudarshan A Shetty <sudarshanshetty9@gmail.com>
+Description: The biomestats R package is developed to test associations between microbial taxa and metadata variables.
+Depends: 
+   R (>= 4.0.0),
+   microbiome,
+   phyloseq,
+   ggplot2,
+   dplyr,
+   coin
+License: GNU v3.0
+Imports: 
+   devtools,
+   ggpubr,
+   readr,
+   tidyr,
+   magrittr,
+   reshape2,
+   RColorBrewer,
+   tibble,
+   stats,
+   grDevices
+Suggests: 
+    DT,
+    knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1

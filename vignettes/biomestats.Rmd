@@ -1,0 +1,178 @@
+---
+title: "Introduction to biomestats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to biomestats}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+# Import libraries  
+
+```{r eval=FALSE, message=FALSE, warning=FALSE}
+library(biomestats)
+```
+
+
+```{r eval=FALSE}
+dis_col <- c(acute_ili="#6883ba", no_ili = "#166f65", `NA`="black") 
+```
+
+# Import data  
+```{r eval=FALSE}
+data("ili_data")
+ps <- ili_data
+#taxa_names(ps)
+taxa_names(ps) <- gsub(" ", ".", taxa_names(ps))
+taxa_names(ps) <- gsub("\\[|\\]", "", taxa_names(ps))
+taxa_names(ps) <- gsub("-", ".", taxa_names(ps))
+
+sample_data(ps)[sample_data(ps)[, c(colnames(sample_data(ps)))] == "unknown"] <- 2
+```
+
+## Abundance data  
+```{r eval=FALSE}
+
+gen_tab <- transform_to_fractions(ps, filter.abund = 0.3)
+
+```
+
+
+## Variables to test  
+
+```{r eval=FALSE}
+
+#main_var <- "ILI"
+
+comord.vars <- c("BMI_2014","respiratory_disease_2014", "Roken_2014")
+
+med.vars <- c("antimicrobials_2014", "flu_shot_2014_2015", "AstmaCOPD_2014",
+              "number_of_medications_2014", "antibioitics_2014")
+
+patho.vars <- c("influenza_2014_any","haemophilus_2014_any","coronavirus_2014")
+
+all.vars <- c(comord.vars,med.vars,patho.vars)
+```
+
+```{r eval=FALSE}
+meta_dat <- meta(ps)
+
+table(meta_dat$condition_status,meta_dat$influenza_2014_any, useNA = "always")
+
+table(meta_dat$condition_status,meta_dat$flu_shot_2014_2015, useNA = "always")
+
+table(meta_dat$condition_status,meta_dat$number_of_medications_2014, useNA = "always")
+
+table(meta_dat$condition_status,meta_dat$respiratory_disease_2014, useNA = "always")
+```
+
+need to *test* 
+
+## Prep metadata  
+
+```{r eval=FALSE}
+phenotypic.data.1 <- prep_metadata(ps, 
+                                   sam.ids = "seq_sam_name", 
+                                   ref.group="no_ili", 
+                                   compare= "condition_status", 
+                                   confounder.vars = c("gender", "age_yrs_oct2014"),
+                                   var.interest=all.vars)
+
+head(phenotypic.data.1)
+table(phenotypic.data.1$influenza_2014_any)
+```
+
+
+## Strata frequency  
+```{r eval=FALSE}
+frequency.of.strata <- table(phenotypic.data.1$stratum)
+mean(frequency.of.strata)
+frequency.of.strata
+```
+
+## Data for testing
+```{r eval=FALSE}
+# remove first column from asv_dat it is subject id
+gen_tab.dat <- select(gen_tab, -ID) 
+# Create "data.set":
+data.set.1 <- cbind(phenotypic.data.1,gen_tab.dat)
+row.names(data.set.1) <- NULL
+# get only bacterial names
+ncols.pheno <- ncol(phenotypic.data.1) +1
+nocl <- ncol(data.set.1)-5
+bacterial.abundance <- names(data.set.1)[ ncols.pheno:nocl]
+
+other <- c("average","SD","prop.positive","entropy","CV")
+
+vars.test <- c("ILI",all.vars)
+
+data.for.testing <- subset(data.set.1,
+                           select=c(vars.test,bacterial.abundance,other,"stratum"))
+
+
+length(colnames(data.for.testing[,vars.test]))
+
+head(data.for.testing)
+```
+
+
+## Type of vars 
+```{r eval=FALSE}
+
+TYPES <- c("ordinal","continuous",rep("ordinal",nocl),
+           rep("continuous",5),
+           "categorical")
+
+types <- c("categorical","continuous", 
+           rep("categorical",length(vars.test)-2),
+           rep("dirac.and.continuous",length(bacterial.abundance)),
+           rep("continuous",5),
+           "categorical")
+#colnames(data.for.testing)[1:10]
+
+```
+
+## Test associations   
+
+```{r eval=FALSE}
+
+no.of.factors <- length(vars.test)
+aux.columns <- (length(vars.test)+1):(length(colnames(data.for.testing))-6)
+variables.of.interest <- names(data.for.testing)
+nominal.bound.on.FDR <- 0.20
+log.scale <- TRUE
+
+set.seed(1938)
+B <- 100000
+```
+
+
+```{r eval=FALSE}
+dir.create("../../test_stat")
+check_association(data.for.testing,
+                  B = 100000,
+                  no.of.factors= no.of.factors,
+                  aux.columns = aux.columns,
+                  log.scale = TRUE,
+                  nominal.bound.on.FDR = 0.25,
+                  phen.data = phenotypic.data.1,
+                  compare.label="case_control",
+                  aux.TYPES=TYPES,
+                  cat.types = types,
+                  path_loc="../../test_stat/",
+                  name.of.stratification= "Sex and age-group")
+```
+
+
+
+
+
+
+
