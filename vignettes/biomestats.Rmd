@@ -16,19 +16,21 @@ comment = "#>"
 
 # Import libraries  
 
-```{r eval=FALSE, message=FALSE, warning=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE}
 library(biomestats)
 ```
 
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 dis_col <- c(acute_ili="#6883ba", no_ili = "#166f65", `NA`="black") 
 ```
 
 # Import data  
-```{r eval=FALSE}
+```{r eval=TRUE}
 data("ili_data")
 ps <- ili_data
+
+table(meta(ps)$condition_status)
 #taxa_names(ps)
 taxa_names(ps) <- gsub(" ", ".", taxa_names(ps))
 taxa_names(ps) <- gsub("\\[|\\]", "", taxa_names(ps))
@@ -37,38 +39,45 @@ taxa_names(ps) <- gsub("-", ".", taxa_names(ps))
 sample_data(ps)[sample_data(ps)[, c(colnames(sample_data(ps)))] == "unknown"] <- 2
 ```
 
-## Abundance data  
-```{r eval=FALSE}
-
-gen_tab <- transform_to_fractions(ps, filter.abund = 0.3)
-
+```{r}
+# Recode smoking variables: so 0 is no and increasing to yes 2
+sample_data(ps)$Roken_2014 <- 3-as.numeric(sample_data(ps)$Roken_2014)
 ```
 
 
-## Variables to test  
+## Abundance data  
 
-```{r eval=FALSE}
+Prepare a tibble from phyloseq object. This tibble consists of ID (for sample) relative abundance of taxa, average and SD of counts of taxa in sample, prop.positive, entropy and C.V.                      
+
+```{r eval=TRUE}
+
+gen_tab <- transform_to_fractions(ps, 
+                                  det.thres= 0.001, 
+                                  prev.thres=10/100)
+
+dim(gen_tab)
+```
+
+## Variables to test   
+
+There can be numberous variables that a user might want to test. It is advised to select and specify variables of interest. This has to be done manually because sample data my consists of several other data that are not useful, like primer/barcode sequences, internal codes from sequencing center, etc.  
+
+```{r eval=TRUE}
 
 #main_var <- "ILI"
 
-comord.vars <- c("BMI_2014","respiratory_disease_2014", "Roken_2014")
+comord.vars <- c("BMI_2014","chronic_cvd_2014", "Roken_2014","age_yrs_oct2014")
 
-med.vars <- c("antimicrobials_2014", "flu_shot_2014_2015", "AstmaCOPD_2014",
-              "number_of_medications_2014", "antibioitics_2014")
+med.vars <- c("antimicrobials_2014", "AstmaCOPD_2014", "statins_2014", "alpa_beta_blockers_2014")
 
-patho.vars <- c("influenza_2014_any","haemophilus_2014_any","coronavirus_2014")
-
-all.vars <- c(comord.vars,med.vars,patho.vars)
+all.vars <- c(comord.vars,med.vars)
 ```
 
-```{r eval=FALSE}
+```{r eval=TRUE}
+
+
 meta_dat <- meta(ps)
-
-table(meta_dat$condition_status,meta_dat$influenza_2014_any, useNA = "always")
-
-table(meta_dat$condition_status,meta_dat$flu_shot_2014_2015, useNA = "always")
-
-table(meta_dat$condition_status,meta_dat$number_of_medications_2014, useNA = "always")
+table(meta_dat$condition_status,meta_dat$antimicrobials_2014, useNA = "always")
 
 table(meta_dat$condition_status,meta_dat$respiratory_disease_2014, useNA = "always")
 ```
@@ -77,7 +86,7 @@ need to *test*
 
 ## Prep metadata  
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 phenotypic.data.1 <- prep_metadata(ps, 
                                    sam.ids = "seq_sam_name", 
                                    ref.group="no_ili", 
@@ -86,66 +95,83 @@ phenotypic.data.1 <- prep_metadata(ps,
                                    var.interest=all.vars)
 
 head(phenotypic.data.1)
-table(phenotypic.data.1$influenza_2014_any)
+
 ```
-
-
 ## Strata frequency  
-```{r eval=FALSE}
+```{r eval=TRUE}
+
 frequency.of.strata <- table(phenotypic.data.1$stratum)
-mean(frequency.of.strata)
+#mean(frequency.of.strata)
 frequency.of.strata
+
 ```
+
 
 ## Data for testing
-```{r eval=FALSE}
-# remove first column from asv_dat it is subject id
-gen_tab.dat <- select(gen_tab, -ID) 
-# Create "data.set":
-data.set.1 <- cbind(phenotypic.data.1,gen_tab.dat)
-row.names(data.set.1) <- NULL
-# get only bacterial names
-ncols.pheno <- ncol(phenotypic.data.1) +1
-nocl <- ncol(data.set.1)-5
-bacterial.abundance <- names(data.set.1)[ ncols.pheno:nocl]
+```{r eval=TRUE}
+
+
+taxa_select <- colnames(gen_tab)[2:(ncol(gen_tab)-5)]
 
 other <- c("average","SD","prop.positive","entropy","CV")
 
+#vars.test <- colnames(phenotypic.data.1)[c(2,5:39)]
 vars.test <- c("ILI",all.vars)
 
-data.for.testing <- subset(data.set.1,
-                           select=c(vars.test,bacterial.abundance,other,"stratum"))
-
-
-length(colnames(data.for.testing[,vars.test]))
-
-head(data.for.testing)
+data.set.1 <- phenotypic.data.1 %>% 
+  left_join(gen_tab, by = "ID") %>% 
+  relocate(stratum, .after = last_col()) %>% 
+  select(!c(ID, gender, age,age_yrs_oct2014.1, age.group)) # age and gender removed as we treat them as confounders
+# sum statistic with sex and age stratum as blocking factor.
+data.set.1
 ```
 
 
-## Type of vars 
+microbiome
+## Type of vars  
+IMPORTANT STEP 
 ```{r eval=FALSE}
 
-TYPES <- c("ordinal","continuous",rep("ordinal",nocl),
+variables_to_test <- c("chronic_cvd_2014","Roken_2014",
+                       "antimicrobials_2014","AstmaCOPD_2014",
+                       "statins_2014", "alpa_beta_blockers_2014")
+
+TYPES <- c("ordinal","continuous",
+           rep("ordinal",length(taxa_select)),
            rep("continuous",5),
            "categorical")
 
 types <- c("categorical","continuous", 
-           rep("categorical",length(vars.test)-2),
-           rep("dirac.and.continuous",length(bacterial.abundance)),
+           rep("categorical",length(variables_to_test)),
+           rep("dirac.and.continuous",length(taxa_select)),
            rep("continuous",5),
            "categorical")
+
+
+#TYPES <- c("ordinal","continuous",rep("ordinal",nocl),
+ #          rep("continuous",5),
+  #         "categorical")
+
+#types <- c("categorical","continuous", 
+ #          rep("categorical",length(vars.test)-2),
+  #         rep("dirac.and.continuous",length(bacterial.abundance)),
+   #        rep("continuous",5),
+    #       "categorical")
 #colnames(data.for.testing)[1:10]
+
+
 
 ```
 
 ## Test associations   
 
 ```{r eval=FALSE}
+#get column number that match bacterial abundance
+bac_cols <- which(colnames(data.set.1) %in% taxa_select)
 
-no.of.factors <- length(vars.test)
-aux.columns <- (length(vars.test)+1):(length(colnames(data.for.testing))-6)
-variables.of.interest <- names(data.for.testing)
+no.of.factors <- length(variables_to_test)
+aux.columns <- bac_cols
+variables.of.interest <- names(data.set.1)
 nominal.bound.on.FDR <- 0.20
 log.scale <- TRUE
 
@@ -156,7 +182,7 @@ B <- 100000
 
 ```{r eval=FALSE}
 dir.create("../../test_stat")
-check_association(data.for.testing,
+check_association(data.set.1,
                   B = 100000,
                   no.of.factors= no.of.factors,
                   aux.columns = aux.columns,

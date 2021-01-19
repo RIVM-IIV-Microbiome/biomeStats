@@ -12,6 +12,7 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
   # 	columns <- c(1,193); B <- 100000; Spearman.rather.than.AD <- TRUE; TYPES[columns]
   p.value <- test <- sample.characteristics <- Sign <- NA
   stratum <- NULL
+
   response.by.treatment <- na.omit(subset(data.for.testing,
     select = c(variables.of.interest[columns], "stratum")
   ))

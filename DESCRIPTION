@@ -1,10 +1,18 @@
 Package: biomestats
 Type: Package
-Title: Test Taxa Metadata Variable Associations
-Version: 00.00.01
-Authors@R: person("Sudarshan A", "Shetty", email = "sudarshanshetty9@gmail.com", role = c("aut", "cre"))
-Maintainer: Sudarshan A Shetty <sudarshanshetty9@gmail.com>
-Description: The biomestats R package is developed to test associations between microbial taxa and metadata variables.
+Title: Methods for carrying out association studies of the microbiome
+Version: 00.00.02
+Authors@R: 
+    c(person(given = "Sudarshan", family = "Shetty", role = c("aut", "cre"),
+             email = "sudarshanshetty9@gmail.com",
+             comment = c(ORCID = "0000-0001-7280-9915")),
+      person("José A", "Ferreira", role = c("aut")),
+      person(given = "Susana", "Fuentes", role = c("aut"),
+             email = "susana.fuentes@rivm.nl")
+	     )
+Description: 
+   The biomestats R package is developed for association studies of the 
+   microbiome.  
 Depends: 
    R (>= 4.0.0),
    microbiome,
@@ -12,7 +20,7 @@ Depends:
    ggplot2,
    dplyr,
    coin
-License: GNU v3.0
+License: CC0
 Imports: 
    devtools,
    ggpubr,

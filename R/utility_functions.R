@@ -52,8 +52,10 @@ show.missing.by.variable <- function(data.set, plot) {
 check.strata <- function(s, data.to.test) {
   stratum <- NULL
   aux.data.to.test <- subset(data.to.test, stratum == s)
-  check <- min(length(unique(aux.data.to.test[, 1])),
-               length(unique(aux.data.to.test[, 2])))
+  check <- min(
+    length(unique(aux.data.to.test[, 1])),
+    length(unique(aux.data.to.test[, 2]))
+  )
   return(check)
 }
 #
@@ -68,14 +70,14 @@ check.strata <- function(s, data.to.test) {
 #' @importFrom grDevices dev.off pdf
 #' @export
 #
-Wilson.interval <- function(frequency,n,confidence){
-  kappa <- qnorm(1-(1-confidence)/2)
-  estimate <- frequency/n
-  aux1 <- (frequency+(kappa^2)/2+kappa*sqrt(n)*
-             sqrt(estimate*(1-estimate)+(kappa^2)/(4*n)))/(n+(kappa^2))
-  aux2 <- (frequency+(kappa^2)/2-kappa*sqrt(n)*sqrt(estimate*(1-estimate)+(kappa^2)/(4*n)))/
-    (n+(kappa^2))
-  return(c(max(0.0,aux2),min(1.0,aux1)))
+Wilson.interval <- function(frequency, n, confidence) {
+  kappa <- qnorm(1 - (1 - confidence) / 2)
+  estimate <- frequency / n
+  aux1 <- (frequency + (kappa^2) / 2 + kappa * sqrt(n) *
+    sqrt(estimate * (1 - estimate) + (kappa^2) / (4 * n))) / (n + (kappa^2))
+  aux2 <- (frequency + (kappa^2) / 2 - kappa * sqrt(n) * sqrt(estimate * (1 - estimate) + (kappa^2) / (4 * n))) /
+    (n + (kappa^2))
+  return(c(max(0.0, aux2), min(1.0, aux1)))
 }
 #
 ############################################################################################################

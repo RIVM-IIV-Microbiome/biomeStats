@@ -36,11 +36,19 @@ check_association <- function(data.for.testing,
 
   }
 
+
+
   stratum <-
-  frequency.of.strata <- table(phen.data$stratum)
+    frequency.of.strata <- table(phen.data$stratum)
   variables.of.interest <- names(data.for.testing)
   name.of.stratification <- name.of.stratification
+
+  # f <- 1
   for(f in (1:no.of.factors)){
+
+    #if(verbose==TRUE){
+    # message(paste0("Processing.. ", test.i[1], " vs ", test.i[2]))
+    #}
 
     start.time <- Sys.time()
 
@@ -49,18 +57,21 @@ check_association <- function(data.for.testing,
     tests <- NULL
     cat.types <- cat.types
     aux.TYPES <- aux.TYPES
-    #if(f==14){
-    #  aux.TYPES[42:942] <- rep("dirac.and.continuous",901)
-    #}
+
+    if(verbose==TRUE){
+      print(paste0(variables.of.interest[as.vector(columns.f[i,])][1], " vs Taxa"))
+    }
+
+
     # STEP 1
     for(i in (1:nrow(columns.f))){
 
       test.i <- test.ONE.association.0(as.vector(columns.f[i,]),data.for.testing,
                                        aux.TYPES,variables.of.interest)
 
-      if(verbose==TRUE){
-        message(paste0("Processing.. ", test.i[1], " vs ", test.i[2]))
-      }
+      #if(verbose==TRUE){
+      # message(paste0("Processing.. ", test.i[1], " vs ", test.i[2]))
+      #}
 
       p.value.i <- as.numeric(test.i[3])
       #p.value.i
@@ -80,6 +91,7 @@ check_association <- function(data.for.testing,
       }else{
         #print(c(i,B.i))
         tests.i <- test.ONE.association(as.vector(columns.f[i,]),data.for.testing,aux.TYPES,variables.of.interest,ceiling(B.i/10))
+
         tests.i <- rbind(tests.i,
                          test.ONE.association(as.vector(columns.f[i,]),data.for.testing,aux.TYPES,variables.of.interest,ceiling(B.i/10)))
         tests.i <- rbind(tests.i,
@@ -138,7 +150,9 @@ check_association <- function(data.for.testing,
 
     #file.name <- paste("ms/taxa_test/associations.between.", compare.label,".", names(data.for.testing)[f],"and.bacteria.CSV",sep=".")
     write.csv2(aux.tests,file=path.save.assoc,row.names=FALSE,quote=TRUE)
-
+    if(verbose==TRUE){
+      message(paste0("Processing.. multiple.tests"))
+    }
     multiple.tests <- na.omit(aux.tests[,-ncol(aux.tests)])
     multiple.tests$variable.1 <- as.character(multiple.tests$variable.1)
     multiple.tests$variable.2 <- as.character(multiple.tests$variable.2)
@@ -155,9 +169,7 @@ check_association <- function(data.for.testing,
                                       bound.FDR=as.numeric(bound.FDR),
                                       better.bound.FDR=as.numeric(better.bound.FDR))
     #head(multiple.tests); str(multiple.tests)
-    if(verbose==TRUE){
-      message(paste0("Processing.. ", colnames(multiple.tests)[1], " vs ", colnames(multiple.tests)[2]))
-    }
+
 
     if(any(multiple.tests$better.bound.FDR<=nominal.bound.on.FDR)){
 
@@ -166,6 +178,9 @@ check_association <- function(data.for.testing,
       rownames(selected.tests) <- NULL
       path.save.select <- paste0(path_loc, "SELECTED.associations.between.",compare.label,".",names(data.for.testing)[f],".and.bacteria.CSV")
 
+      if(verbose==TRUE){
+        message(paste0("Plotting.. multiple.tests"))
+      }
       #path.save <- paste0("ms/taxa_test/iliv1v2/", "SELECTED.associations.between.",compare.label,".",names(data.for.testing)[f],".and.bacteria.CSV",sep=".")
       #file.name <- paste("ms/taxa_test/SELECTED.associations.between", compare.label,".",names(data.for.testing)[f],"and.bacteria.CSV",sep=".")
       write.csv2(selected.tests,file=path.save.select,row.names=FALSE,quote=TRUE)
