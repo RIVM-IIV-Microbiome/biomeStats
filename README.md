@@ -1,7 +1,7 @@
 
 # biomestats #
 
-NOTE: This package in under active development. Changes may be done without prior notice. No support will be provided for the tool unless a stable version is announced.    
+NOTE: This package in under active development. Changes may be done without prior notice. No support will be provided for the tool unless a stable version is released.    
 
 _biomestats_ is an R package developed to bring the microbiome association framework proposed by Ferreira JA and Fuentes S. [Some comments on certain statistical aspects of the study of the microbiome. Briefings in bioinformatics. 2020 Jul;21(4):1487-94](https://doi.org/10.1093/bib/bbz077) to the wider microbiome research community. The tools is developed within the RIVM-Microbiome Toolbox project.    
 
