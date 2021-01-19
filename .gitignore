@@ -10,3 +10,5 @@ inst/extras/*.R
 
 # Never put this in version control
 OAtoken
+*.R
+*.rds

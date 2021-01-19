@@ -4,6 +4,14 @@
 #' @param data.for.plotting dataset to use for plotting
 #' @param types variable properties, ordinal, categorical, continous, etc.
 #' @param log.scale use log-scale to plot abundances
+#' @author Sudarshan A. Shetty
+#'
+#' @references
+#' Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of
+#' the study of the microbiome.
+#' \emph{Briefings in bioinformatics} 21(4), pp.1487-1494.
+#' \url{https://doi.org/10.1093/bib/bbz077}
+#'
 #' @export
 
 illustrate.ONE.association <- function(columns, data.for.plotting, types, log.scale) {

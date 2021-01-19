@@ -33,8 +33,8 @@ gen_tab <- transform_to_fractions(ps,
 
 }
 \references{
-Ferreira, J.A. and Fuentes, S., 2020. Some comments on certain statistical
-aspects of the study of the microbiome.
+Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of
+the study of the microbiome.
 \emph{Briefings in bioinformatics} 21(4), pp.1487-1494.
 \url{https://doi.org/10.1093/bib/bbz077}
 }

@@ -5,6 +5,14 @@
 #' @param TYPES variable properties, ordinal, categorical, continous, etc.
 #' @param variables.of.interest list/vector of variables matching input colnames to test
 #' @param B.i resample values (numeric)
+#' @author Sudarshan A. Shetty
+#'
+#' @references
+#' Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of
+#' the study of the microbiome.
+#' \emph{Briefings in bioinformatics} 21(4), pp.1487-1494.
+#' \url{https://doi.org/10.1093/bib/bbz077}
+#'
 #' @export
 
 test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.interest, B.i) {

@@ -19,6 +19,8 @@
 #' # confounder.vars = c("gender", "age_yrs_oct2014"),
 #' # var.interest=all.vars)
 #'
+#' @author Sudarshan A. Shetty
+#'
 #' @export
 
 prep_metadata <- function(x,
