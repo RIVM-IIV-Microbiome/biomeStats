@@ -1,11 +1,14 @@
 #' @title Illustrate.ONE.association.BY.STRATUM
 #' @details Tests based on the whole data set blocked by stratum.
-#' This version uses the asymptotic distribution
+#'          This version uses the asymptotic distribution
 #' @param columns dataset variable to specifically test
-#' @param data.for.testing dataset to use for testing
-#' @param TYPES variable properties, ordinal, categorical, continous, etc.
+#' @param data_for_testing dataset to use for testing
+#' @param TYPES variable properties, ordinal, categorical, continuous, etc.
 #' @param variables.of.interest variables to test
 #' @author Sudarshan A. Shetty
+#'
+#' @importFrom coin independence_test approximate pvalue statistic
+#' @importFrom coin spearman_test kruskal_test cmh_test
 #'
 #' @references
 #' Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of
@@ -15,20 +18,26 @@
 #'
 #' @export
 
-test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.of.interest) {
+test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.of.interest) {
   # 	print(columns)
   # 	columns <- c(1,193); B <- 100000; Spearman.rather.than.AD <- TRUE; TYPES[columns]
-  p.value <- test <- sample.characteristics <- Sign <- NA
-  stratum <- NULL
+  stratum <- p.value <- test <- sample.characteristics <- Sign <- NA
 
-  response.by.treatment <- na.omit(subset(data.for.testing,
-    select = c(variables.of.interest[columns], "stratum")
-  ))
+  response.by.treatment <- na.omit(subset(data_for_testing,
+                                          select = c(variables.of.interest[columns], "stratum")))
+
+  print(paste0("test.ONE.association.0 ", names(response.by.treatment)[1], " vs " ,names(response.by.treatment)[2]))
   # 	head(response.by.treatment); str(response.by.treatment)
 
   checks.by.stratum <- t(sapply(response.by.treatment$stratum, check.strata, response.by.treatment))
   good.strata <- response.by.treatment$stratum[checks.by.stratum > 1]
 
+  #### added by sudarshan ########
+  if (length(good.strata) == 0){
+    stop(paste0("Variable ", colnames(response.by.treatment)[1], " cannot be stratified
+              omit this variable and try again"))
+  }
+  ################################
   tested <- FALSE
 
   if (length(good.strata) > 1) {
@@ -38,8 +47,7 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
 
     type.1 <- TYPES[columns[1]]
     type.2 <- TYPES[columns[2]]
-    if ((type.1 == "binary" & type.2 != "binary") |
-      (type.1 == "categorical" & (type.2 != "categorical" & type.2 != "binary")) |
+    if ((type.1 == "binary" & type.2 != "binary") | (type.1 == "categorical" & (type.2 != "categorical" & type.2 != "binary")) |
       (type.1 == "ordinal" & (type.2 != "ordinal" & type.2 != "categorical" & type.2 != "binary"))) {
       response.by.treatment <- response.by.treatment[, c(2, 1, 3)]
 
@@ -47,13 +55,16 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
       type.1 <- TYPES[columns[2]]
     }
     names(response.by.treatment) <- c("response", "treatment", "stratum")
-    head(response.by.treatment)
+    #head(response.by.treatment)
     response.by.treatment$stratum <- as.factor(response.by.treatment$stratum)
 
     if ((is.element(type.2, c("ordinal")) &
       is.element(type.1, c("dirac.and.continuous", "continuous", "ordinal"))) |
       (is.element(type.2, c("binary")) &
         is.element(type.1, c("ordinal")))) {
+
+      print("independence.test")
+
       independence.test <- independence_test(response ~ treatment | stratum,
         data = response.by.treatment,
         distribution = "asymptotic", teststat = "scalar"
@@ -79,6 +90,9 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
     }
 
     if (type.1 == "continuous" & type.2 == "continuous") {
+
+      print("Spearman.test")
+
       Spearman.test <- spearman_test(response ~ treatment | stratum,
         data = response.by.treatment,
         distribution = "asymptotic"
@@ -91,21 +105,24 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
     }
 
     if (is.element(type.2, c("binary", "categorical")) &
-      is.element(type.1, c("dirac.and.continuous", "continuous")) & (tested == FALSE)) {
+        is.element(type.1, c("dirac.and.continuous", "continuous")) &
+        (tested == FALSE)) {
+
+      print(paste0("test.ONE.association.0 ", names(response.by.treatment)[1], " vs " ,names(response.by.treatment)[2]))
+      print("KW.test")
+
       KW.test <- kruskal_test(response ~ as.factor(treatment) | stratum,
-        data = response.by.treatment,
-        distribution = "asymptotic"
-      )
+                              data = response.by.treatment,
+                              distribution = "asymptotic")
       p.value <- as.numeric(pvalue(KW.test))
       if (type.2 == "binary") {
-        Sign <- sign(cor(
-          y = response.by.treatment$response,
-          x = response.by.treatment$treatment
-        ))
+        Sign <- sign(cor(y = response.by.treatment$response,
+                         x = response.by.treatment$treatment))
       } else {
         Sign <- 0
       }
-      list.of.samples <- split(response.by.treatment$response, f = response.by.treatment$treatment)
+      list.of.samples <- split(response.by.treatment$response,
+                               f = response.by.treatment$treatment)
       test <- "Kruskal-Wallis"
       k <- length(list.of.samples)
       sample.characteristics <- NULL
@@ -117,7 +134,8 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
     }
 
     if (is.element(type.1, c("binary", "categorical", "ordinal")) &
-      is.element(type.2, c("binary", "categorical", "ordinal")) & (tested == FALSE)) {
+        is.element(type.2, c("binary", "categorical", "ordinal")) & (tested == FALSE)) {
+      print("CHM.test")
       CHM.test <- cmh_test(as.factor(response) ~ as.factor(treatment) | stratum,
         data = response.by.treatment, distribution = "asymptotic"
       )
@@ -147,7 +165,7 @@ test.ONE.association.0 <- function(columns, data.for.testing, TYPES, variables.o
   }
 
   return(c(
-    names(data.for.testing)[columns], as.character(p.value), Sign, test,
+    names(data_for_testing)[columns], as.character(p.value), Sign, test,
     sample.characteristics
   ))
 }

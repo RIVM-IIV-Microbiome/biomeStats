@@ -3,7 +3,7 @@
 #' @param columns dataset variable to specifically test
 #' @param data.for.plotting dataset to use for plotting
 #' @param types variable properties, ordinal, categorical, continous, etc.
-#' @param log.scale use log-scale to plot abundances
+#' @param log_scale use log-scale to plot abundances
 #' @author Sudarshan A. Shetty
 #'
 #' @references
@@ -14,7 +14,7 @@
 #'
 #' @export
 
-illustrate.ONE.association <- function(columns, data.for.plotting, types, log.scale) {
+illustrate.ONE.association <- function(columns, data.for.plotting, types, log_scale) {
   # print(columns)
   # 	columns <- columns.r; data.for.plotting <- data.for.testing
   x <- y <- NULL
@@ -79,7 +79,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
     } else {
       x.label <- good.names[1]
     }
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = x.label,
         ylab = paste("log(", good.names[2], ")", collapse = "")
@@ -114,7 +114,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
 
   if (is.element(type.1, c("categorical", "binary", "ordinal")) & type.2 == "continuous") {
     par(mfrow = c(1, 1), mgp = c(2.5, 1, 0))
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = data.to.plot, col = "lavender", xlab = good.names[1],
         ylab = paste("log(", good.names[2], ")", collapse = "")
@@ -131,7 +131,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
 
   if (is.element(type.2, c("categorical", "binary", "ordinal")) & type.1 == "continuous") {
     par(mfrow = c(1, 1), mgp = c(2.5, 1, 0))
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = data.to.plot, col = "lavender", xlab = good.names[2],
         ylab = paste("log(", good.names[1], ")", collapse = "")
@@ -197,7 +197,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
       fill = colour.palette[1:ncol(frequency.table)], title = good.names[1]
     )
     aux.data.to.plot <- subset(data.to.plot, y != atom)
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[1],
         ylab = paste("log(", good.names[2], ")", collapse = "")
@@ -234,7 +234,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
       fill = colour.palette[1:ncol(frequency.table)], title = good.names[2]
     )
     aux.data.to.plot <- subset(data.to.plot, x != atom)
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[2],
         ylab = paste("log(", good.names[1], ")", collapse = "")
@@ -294,7 +294,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
         ifelse(x < atom, paste("<", atom, sep = ""), paste("=", atom, sep = ""))
       )
     )
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[1],
         ylab = paste("log(", good.names[2], ")", collapse = "")
@@ -321,7 +321,7 @@ illustrate.ONE.association <- function(columns, data.for.plotting, types, log.sc
         ifelse(y < atom, paste("<", atom, sep = ""), paste("=", atom, sep = ""))
       )
     )
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[2],
         ylab = paste("log(", good.names[1], ")", collapse = "")

@@ -5,7 +5,7 @@
 #' @param stratum stratum to check
 #' @param x.limits x-axis limits for plotting
 #' @param y.limits y-axis limits for plotting
-#' @param log.scale use log-scale to plot abundances
+#' @param log_scale use log-scale to plot abundances
 #' @author Sudarshan A. Shetty
 #'
 #' @references
@@ -19,7 +19,7 @@
 
 illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
                                                   stratum, x.limits, y.limits,
-                                                  log.scale) {
+                                                  log_scale) {
 
   x <- y <- columns <- NULL
   columns <- c(1, 2)
@@ -87,7 +87,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
     } else {
       x.label <- good.names[1]
     }
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = x.label, main = stratum,
         ylab = paste("log(", good.names[2], ")", collapse = ""), ylim = y.limits
@@ -122,7 +122,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
 
   if (is.element(type.1, c("categorical", "binary", "ordinal")) & type.2 == "continuous") {
     par(mfrow = c(1, 1), mgp = c(2.5, 1, 0))
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = data.to.plot, col = "lavender", xlab = good.names[1], main = stratum,
         ylab = paste("log(", good.names[2], ")", collapse = ""), ylim = y.limits
@@ -139,7 +139,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
 
   if (is.element(type.2, c("categorical", "binary", "ordinal")) & type.1 == "continuous") {
     par(mfrow = c(1, 1), mgp = c(2.5, 1, 0))
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = data.to.plot, col = "lavender", xlab = good.names[2], main = stratum,
         ylab = paste("log(", good.names[1], ")", collapse = ""), ylim = x.limits
@@ -214,7 +214,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
       fill = colour.palette[1:ncol(frequency.table)], title = good.names[1]
     )
     aux.data.to.plot <- subset(data.to.plot, y != atom)
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[1], main = stratum,
         ylab = paste("log(", good.names[2], ")", collapse = ""), ylim = y.limits
@@ -251,7 +251,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
       fill = colour.palette[1:ncol(frequency.table)], title = good.names[2]
     )
     aux.data.to.plot <- subset(data.to.plot, x != atom)
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[2], main = stratum,
         ylab = paste("log(", good.names[1], ")", collapse = ""), ylim = x.limits
@@ -314,7 +314,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
         ifelse(x < atom, paste("<", atom, sep = ""), paste("=", atom, sep = ""))
       )
     )
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(y) ~ x,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[1], main = stratum,
         ylab = paste("log(", good.names[2], ")", collapse = ""), ylim = y.limits
@@ -344,7 +344,7 @@ illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
         ifelse(y < atom, paste("<", atom, sep = ""), paste("=", atom, sep = ""))
       )
     )
-    if (log.scale) {
+    if (log_scale) {
       boxplot(log(x) ~ y,
         data = aux.data.to.plot, col = "lavender", xlab = good.names[2], main = stratum,
         ylab = paste("log(", good.names[1], ")", collapse = ""), ylim = x.limits

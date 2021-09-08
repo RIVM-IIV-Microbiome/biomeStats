@@ -4,12 +4,12 @@
 \alias{test.ONE.association.0}
 \title{Illustrate.ONE.association.BY.STRATUM}
 \usage{
-test.ONE.association.0(columns, data.for.testing, TYPES, variables.of.interest)
+test.ONE.association.0(columns, data_for_testing, TYPES, variables.of.interest)
 }
 \arguments{
 \item{columns}{dataset variable to specifically test}
 
-\item{data.for.testing}{dataset to use for testing}
+\item{data_for_testing}{dataset to use for testing}
 
 \item{TYPES}{variable properties, ordinal, categorical, continous, etc.}
 
@@ -20,7 +20,7 @@ Illustrate.ONE.association.BY.STRATUM
 }
 \details{
 Tests based on the whole data set blocked by stratum.
-This version uses the asymptotic distribution
+         This version uses the asymptotic distribution
 }
 \references{
 Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of

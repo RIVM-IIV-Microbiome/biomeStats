@@ -2,12 +2,6 @@
 #' @param data.set dataset consisting of variables
 #' @import graphics
 #' @importFrom stats aggregate cor na.omit
-#' @import utils
-#' @import coin
-#' @import dplyr
-#' @import ggplot2
-#' @import microbiome
-#' @import phyloseq
 #' @export
 
 create.names <- function(data.set) {

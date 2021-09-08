@@ -10,7 +10,7 @@ illustrate.ONE.association.BY.STRATUM(
   stratum,
   x.limits,
   y.limits,
-  log.scale
+  log_scale
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ illustrate.ONE.association.BY.STRATUM(
 
 \item{y.limits}{y-axis limits for plotting}
 
-\item{log.scale}{use log-scale to plot abundances}
+\item{log_scale}{use log-scale to plot abundances}
 }
 \description{
 Illustrate.ONE.association.BY.STRATUM

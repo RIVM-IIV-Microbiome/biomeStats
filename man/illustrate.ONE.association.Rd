@@ -4,7 +4,7 @@
 \alias{illustrate.ONE.association}
 \title{Illustrate.ONE.association}
 \usage{
-illustrate.ONE.association(columns, data.for.plotting, types, log.scale)
+illustrate.ONE.association(columns, data.for.plotting, types, log_scale)
 }
 \arguments{
 \item{columns}{dataset variable to specifically test}
@@ -13,7 +13,7 @@ illustrate.ONE.association(columns, data.for.plotting, types, log.scale)
 
 \item{types}{variable properties, ordinal, categorical, continous, etc.}
 
-\item{log.scale}{use log-scale to plot abundances}
+\item{log_scale}{use log-scale to plot abundances}
 }
 \description{
 Illustrate.ONE.association

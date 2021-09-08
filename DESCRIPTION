@@ -1,7 +1,7 @@
-Package: biomestats
+Package: biomeStats
 Type: Package
 Title: Methods for carrying out association studies of the microbiome
-Version: 00.00.02
+Version: 00.00.03
 Authors@R: 
     c(person(given = "Sudarshan", family = "Shetty", role = c("aut", "cre"),
              email = "sudarshanshetty9@gmail.com",
@@ -14,24 +14,22 @@ Description:
    The biomestats R package is developed for association studies of the 
    microbiome.  
 Depends: 
-   R (>= 4.0.0),
-   microbiome,
-   phyloseq,
-   ggplot2,
-   dplyr,
-   coin
-License: CC0
+   R (>= 4.0.0)
+License: MIT + file LICENSE
 Imports: 
+   coin,
    devtools,
-   ggpubr,
-   readr,
-   tidyr,
+   dplyr,
+   grDevices,
+   microbiome,
    magrittr,
+   phyloseq,
    reshape2,
-   RColorBrewer,
-   tibble,
+   readr,
+   rstatix,
    stats,
-   grDevices
+   tidyr,
+   tibble
 Suggests: 
     DT,
     knitr,

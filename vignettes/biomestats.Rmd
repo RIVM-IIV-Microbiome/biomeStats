@@ -1,8 +1,8 @@
 ---
-title: "Introduction to biomestats"
+title: "Introduction to biomeStats"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to biomestats}
+  %\VignetteIndexEntry{Introduction to biomeStats}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -16,89 +16,121 @@ comment = "#>"
 
 # Import libraries  
 
-```{r eval=TRUE, message=FALSE, warning=FALSE}
-library(biomestats)
+```{r eval=F, message=FALSE, warning=FALSE}
+library(biomeStats)
+library(microbiome)
+library(dplyr)
 ```
 
 
-```{r eval=TRUE}
-dis_col <- c(acute_ili="#6883ba", no_ili = "#166f65", `NA`="black") 
+```{r eval=F}
+dis_col <- c(L1="#6883ba", C = "#166f65", `NA`="black") 
 ```
 
 # Import data  
-```{r eval=TRUE}
-data("ili_data")
-ps <- ili_data
-
-table(meta(ps)$condition_status)
-#taxa_names(ps)
-taxa_names(ps) <- gsub(" ", ".", taxa_names(ps))
-taxa_names(ps) <- gsub("\\[|\\]", "", taxa_names(ps))
-taxa_names(ps) <- gsub("-", ".", taxa_names(ps))
-
-sample_data(ps)[sample_data(ps)[, c(colnames(sample_data(ps)))] == "unknown"] <- 2
+```{r eval=F}
+data("FuentesIliGutData")
+ps <- subset_samples(FuentesIliGutData, ILI %in% c("C", "L1"))
+#subset_sams <- sample(sample_names(ps), 80)
+ps <- prune_samples(subset_sams, ps)
+ps <- prune_taxa(taxa_sums(ps)>0,ps)
+ps <- tax_glom(ps, "Genus")
+taxa_names(ps) <- make.unique(tax_table(ps)[,"Genus"])
+sample_data(ps)$sample_ids <- sample_names(ps)
 ```
 
-```{r}
-# Recode smoking variables: so 0 is no and increasing to yes 2
-sample_data(ps)$Roken_2014 <- 3-as.numeric(sample_data(ps)$Roken_2014)
+```{r eval=F}
+
+ps <- biomeUtils::cleanTaxonomy(ps)
+taxa_names(ps) <- make.unique(tax_table(ps)[,"Genus"])
+
 ```
 
+
+```{r eval=F}
+sample_variables(ps)
+
+# "ILI" "BMI" "sex" "age"
+# "antidepressants" "antibiotics" "T2.diabetes.medication"
+```
+
+
+```{r eval=F}
+table(meta(ps)[,"ILI"])
+```
+
+```{r eval=F}
+table(meta(ps)[,"sex"])
+table(meta(ps)[,"antidepressants"])
+table(meta(ps)[,"anticoagulants"])
+table(meta(ps)[,"antibiotics"])
+table(meta(ps)[,"statins"])
+table(meta(ps)[,"alphabeta.blocker"])
+
+```
 
 ## Abundance data  
 
 Prepare a tibble from phyloseq object. This tibble consists of ID (for sample) relative abundance of taxa, average and SD of counts of taxa in sample, prop.positive, entropy and C.V.                      
 
-```{r eval=TRUE}
+```{r eval=F}
 
-gen_tab <- transform_to_fractions(ps, 
-                                  det.thres= 0.001, 
-                                  prev.thres=10/100)
+gen_tab <- prepTaxaAbundanceData(ps, 
+                                 detection_threshold= 0.0001, 
+                                 prevalence_threshold=10/100)
 
 dim(gen_tab)
+head(gen_tab)
 ```
 
 ## Variables to test   
 
-There can be numberous variables that a user might want to test. It is advised to select and specify variables of interest. This has to be done manually because sample data my consists of several other data that are not useful, like primer/barcode sequences, internal codes from sequencing center, etc.  
+There can be numerous variables that a user might want to test. It is advised to select and specify variables of interest. This has to be done manually because sample data my consists of several other data that are not useful, like primer/barcode sequences, internal codes from sequencing centre, etc.  
 
-```{r eval=TRUE}
+```{r eval=F}
 
 #main_var <- "ILI"
-
-comord.vars <- c("BMI_2014","chronic_cvd_2014", "Roken_2014","age_yrs_oct2014")
-
-med.vars <- c("antimicrobials_2014", "AstmaCOPD_2014", "statins_2014", "alpa_beta_blockers_2014")
+comord.vars <- c("BMI")
+#"antimicrobial","ARB",
+med.vars <- c("anticoagulants", "antibiotics", "statins","alphabeta.blocker")
 
 all.vars <- c(comord.vars,med.vars)
 ```
 
-```{r eval=TRUE}
+```{r eval=F}
 
+sample_data(ps)$sex <- ifelse(sample_data(ps)$sex =="M",0,1)
 
-meta_dat <- meta(ps)
-table(meta_dat$condition_status,meta_dat$antimicrobials_2014, useNA = "always")
+sample_data(ps)$antidepressants <- ifelse(sample_data(ps)$antidepressants =="N",0,1)
 
-table(meta_dat$condition_status,meta_dat$respiratory_disease_2014, useNA = "always")
+sample_data(ps)$anticoagulants <- ifelse(sample_data(ps)$anticoagulants =="N",0,1)
+
+sample_data(ps)$antibiotics <- ifelse(sample_data(ps)$antibiotics =="N",0,1)
+
+sample_data(ps)$statins <- ifelse(sample_data(ps)$statins =="N",0,1)
+
+sample_data(ps)$alphabeta.blocker <- ifelse(sample_data(ps)$alphabeta.blocker =="N",0,1)
 ```
+
 
 need to *test* 
 
 ## Prep metadata  
 
-```{r eval=TRUE}
-phenotypic.data.1 <- prep_metadata(ps, 
-                                   sam.ids = "seq_sam_name", 
-                                   ref.group="no_ili", 
-                                   compare= "condition_status", 
-                                   confounder.vars = c("gender", "age_yrs_oct2014"),
-                                   var.interest=all.vars)
+```{r eval=F}
+
+phenotypic.data.1 <- prepSampleData(ps, 
+                                   sample_ids = "sample_ids", 
+                                   reference_group ="C", 
+                                   compare = "ILI", 
+                                   confounder_variables = c("sex", "age"),
+                                   variable_interest=all.vars)
 
 head(phenotypic.data.1)
 
 ```
 ## Strata frequency  
-```{r eval=TRUE}
+```{r eval=F}
 
 frequency.of.strata <- table(phenotypic.data.1$stratum)
 #mean(frequency.of.strata)
@@ -108,20 +140,22 @@ frequency.of.strata
 
 
 ## Data for testing
-```{r eval=TRUE}
+```{r eval=F}
 
-
+# First column is sample ID so start from second column and stop at column 5 from last
 taxa_select <- colnames(gen_tab)[2:(ncol(gen_tab)-5)]
 
+# the last five columns are 
 other <- c("average","SD","prop.positive","entropy","CV")
 
 #vars.test <- colnames(phenotypic.data.1)[c(2,5:39)]
+# get variables
 vars.test <- c("ILI",all.vars)
 
 data.set.1 <- phenotypic.data.1 %>% 
-  left_join(gen_tab, by = "ID") %>% 
+  left_join(gen_tab, by = "sample_ids") %>% 
   relocate(stratum, .after = last_col()) %>% 
-  select(!c(ID, gender, age,age_yrs_oct2014.1, age.group)) # age and gender removed as we treat them as confounders
+  select(!c(sample_ids, sex, age, age.group)) # age and gender removed as we treat them as confounders
 # sum statistic with sex and age stratum as blocking factor.
 data.set.1
 ```
@@ -130,70 +164,64 @@ data.set.1
 microbiome
 ## Type of vars  
 IMPORTANT STEP 
-```{r eval=FALSE}
+```{r eval=F}
 
-variables_to_test <- c("chronic_cvd_2014","Roken_2014",
-                       "antimicrobials_2014","AstmaCOPD_2014",
-                       "statins_2014", "alpa_beta_blockers_2014")
+variables_to_test <- c("ILI",all.vars)
 
+```
+
+```{r eval=F}
+
+
+
+# BMI is continuous variable 
 TYPES <- c("ordinal","continuous",
+           rep("ordinal",4),
            rep("ordinal",length(taxa_select)),
            rep("continuous",5),
            "categorical")
 
 types <- c("categorical","continuous", 
-           rep("categorical",length(variables_to_test)),
+           rep("categorical",4),
            rep("dirac.and.continuous",length(taxa_select)),
            rep("continuous",5),
            "categorical")
 
-
-#TYPES <- c("ordinal","continuous",rep("ordinal",nocl),
- #          rep("continuous",5),
-  #         "categorical")
-
-#types <- c("categorical","continuous", 
- #          rep("categorical",length(vars.test)-2),
-  #         rep("dirac.and.continuous",length(bacterial.abundance)),
-   #        rep("continuous",5),
-    #       "categorical")
-#colnames(data.for.testing)[1:10]
-
-
-
 ```
+
 
 ## Test associations   
 
-```{r eval=FALSE}
+```{r eval=F}
 #get column number that match bacterial abundance
 bac_cols <- which(colnames(data.set.1) %in% taxa_select)
 
-no.of.factors <- length(variables_to_test)
-aux.columns <- bac_cols
-variables.of.interest <- names(data.set.1)
+#no.of.factors <- length(variables_to_test)
+#aux.columns <- bac_cols
+variables.of.interest <- colnames(data.set.1)[1:(ncol(data.set.1)-6)]
 nominal.bound.on.FDR <- 0.20
 log.scale <- TRUE
 
 set.seed(1938)
-B <- 100000
+B <- 1000
 ```
 
 
-```{r eval=FALSE}
+```{r eval=F}
 dir.create("../../test_stat")
-check_association(data.set.1,
-                  B = 100000,
-                  no.of.factors= no.of.factors,
-                  aux.columns = aux.columns,
-                  log.scale = TRUE,
-                  nominal.bound.on.FDR = 0.25,
-                  phen.data = phenotypic.data.1,
-                  compare.label="case_control",
-                  aux.TYPES=TYPES,
-                  cat.types = types,
-                  path_loc="../../test_stat/",
-                  name.of.stratification= "Sex and age-group")
+
+doAssociationAnalysis(data_for_testing = data.set.1,
+                      B = 1000,
+                      no_of_factors = length(variables_to_test),
+                      aux_columns = bac_cols,
+                      log_scale = TRUE,
+                      nominal_bound_on_FDR = 0.20,
+                      phen_data = phenotypic.data.1,
+                      compare_label ="case_control",
+                      aux_TYPES = TYPES,
+                      cat_ypes = types,
+                      path_loc="../../test_stat/",
+                      name_of_stratification= "Sex and age-group")
 ```
 
 

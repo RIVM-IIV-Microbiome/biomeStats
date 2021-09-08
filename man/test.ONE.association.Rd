@@ -6,7 +6,7 @@
 \usage{
 test.ONE.association(
   columns,
-  data.for.testing,
+  data_for_testing,
   TYPES,
   variables.of.interest,
   B.i
@@ -15,7 +15,7 @@ test.ONE.association(
 \arguments{
 \item{columns}{dataset variable to specifically test}
 
-\item{data.for.testing}{dataset to use for testing}
+\item{data_for_testing}{dataset to use for testing}
 
 \item{TYPES}{variable properties, ordinal, categorical, continous, etc.}
 

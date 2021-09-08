@@ -1,11 +1,14 @@
 #' @title Test one association
 #' @details Tests based on the whole data set blocked by stratum
 #' @param columns dataset variable to specifically test
-#' @param data.for.testing dataset to use for testing
+#' @param data_for_testing dataset to use for testing
 #' @param TYPES variable properties, ordinal, categorical, continous, etc.
 #' @param variables.of.interest list/vector of variables matching input colnames to test
 #' @param B.i resample values (numeric)
 #' @author Sudarshan A. Shetty
+#'
+#' @importFrom coin independence_test approximate pvalue statistic
+#' @importFrom coin spearman_test kruskal_test cmh_test
 #'
 #' @references
 #' Ferreira JA, Fuentes S. (2020). Some comments on certain statistical aspects of
@@ -15,20 +18,20 @@
 #'
 #' @export
 
-test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.interest, B.i) {
+test.ONE.association <- function(columns, data_for_testing, TYPES, variables.of.interest, B.i) {
   # 	print(columns)
   # 	columns <- c(1,193); B <- 100000; Spearman.rather.than.AD <- TRUE; TYPES[columns]
   stratum <- NULL
   p.value <- test <- sample.characteristics <- Sign <- NA
 
-  response.by.treatment <- na.omit(subset(data.for.testing,
+  response.by.treatment <- na.omit(subset(data_for_testing,
     select = c(variables.of.interest[columns], "stratum")
   ))
   # 	head(response.by.treatment); str(response.by.treatment)
 
   checks.by.stratum <- t(sapply(response.by.treatment$stratum, check.strata, response.by.treatment))
   good.strata <- response.by.treatment$stratum[checks.by.stratum > 1]
-  head(good.strata)
+  #head(good.strata)
   tested <- FALSE
 
   if (length(good.strata) > 1) {
@@ -53,12 +56,12 @@ test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.
       is.element(type.1, c("dirac.and.continuous", "continuous", "ordinal"))) |
       (is.element(type.2, c("binary")) &
         is.element(type.1, c("ordinal")))) {
-      independence.test <- independence_test(response ~ treatment | stratum,
+      independence.test <- coin::independence_test(response ~ treatment | stratum,
         data = response.by.treatment,
-        distribution = approximate(nresample = B.i), teststat = "scalar"
+        distribution = coin::approximate(nresample = B.i), teststat = "scalar"
       )
-      p.value <- as.numeric(pvalue(independence.test))
-      Sign <- sign(statistic(spearman_test(response ~ treatment | stratum,
+      p.value <- as.numeric(coin::pvalue(independence.test))
+      Sign <- sign(coin::statistic(coin::spearman_test(response ~ treatment | stratum,
         data = response.by.treatment,
         distribution = "asymptotic"
       )))
@@ -91,7 +94,7 @@ test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.
 
     if (is.element(type.2, c("binary", "categorical")) &
       is.element(type.1, c("dirac.and.continuous", "continuous")) & (tested == FALSE)) {
-      KW.test <- kruskal_test(response ~ as.factor(treatment) | stratum,
+      KW.test <- coin::kruskal_test(response ~ as.factor(treatment) | stratum,
         data = response.by.treatment,
         distribution = approximate(nresample = B.i)
       )
@@ -117,7 +120,7 @@ test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.
 
     if (is.element(type.1, c("binary", "categorical", "ordinal")) &
       is.element(type.2, c("binary", "categorical", "ordinal")) & (tested == FALSE)) {
-      CHM.test <- cmh_test(as.factor(response) ~ as.factor(treatment) | stratum,
+      CHM.test <- coin::cmh_test(as.factor(response) ~ as.factor(treatment) | stratum,
         data = response.by.treatment, distribution = approximate(nresample = B.i)
       )
       p.value <- as.numeric(pvalue(CHM.test))
@@ -146,7 +149,7 @@ test.ONE.association <- function(columns, data.for.testing, TYPES, variables.of.
   }
 
   return(c(
-    names(data.for.testing)[columns], as.character(p.value), Sign, test,
+    names(data_for_testing)[columns], as.character(p.value), Sign, test,
     sample.characteristics
   ))
 }

@@ -12,3 +12,5 @@ inst/extras/*.R
 OAtoken
 *.R
 *.rds
+data-raw/old/ili_data.rda
+data-raw/ILI pseq
