@@ -1,7 +1,7 @@
 Package: biomeStats
 Type: Package
 Title: Methods for carrying out association studies of the microbiome
-Version: 00.00.03
+Version: 00.00.04
 Authors@R: 
     c(person(given = "Sudarshan", family = "Shetty", role = c("aut", "cre"),
              email = "sudarshanshetty9@gmail.com",
@@ -34,8 +34,11 @@ Suggests:
     DT,
     knitr,
     rmarkdown,
-    testthat
+    testthat,
+    biomeUtils
+Remotes: 
+    github::RIVM-IIV-Microbiome/biomeUtils
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

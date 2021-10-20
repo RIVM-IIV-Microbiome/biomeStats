@@ -11,7 +11,7 @@ test.ONE.association.0(columns, data_for_testing, TYPES, variables.of.interest)
 
 \item{data_for_testing}{dataset to use for testing}
 
-\item{TYPES}{variable properties, ordinal, categorical, continous, etc.}
+\item{TYPES}{variable properties, ordinal, categorical, continuous, etc.}
 
 \item{variables.of.interest}{variables to test}
 }

@@ -16,56 +16,63 @@ comment = "#>"
 
 # Import libraries  
 
-```{r eval=F, message=FALSE, warning=FALSE}
+```{r eval=T, message=FALSE, warning=FALSE}
 library(biomeStats)
+library(biomeUtils)
 library(microbiome)
 library(dplyr)
 ```
 
 
-```{r eval=F}
+```{r eval=T}
 dis_col <- c(L1="#6883ba", C = "#166f65", `NA`="black") 
 ```
 
 # Import data  
-```{r eval=F}
+```{r eval=T}
 data("FuentesIliGutData")
 ps <- subset_samples(FuentesIliGutData, ILI %in% c("C", "L1"))
-#subset_sams <- sample(sample_names(ps), 80)
-ps <- prune_samples(subset_sams, ps)
-ps <- prune_taxa(taxa_sums(ps)>0,ps)
-ps <- tax_glom(ps, "Genus")
-taxa_names(ps) <- make.unique(tax_table(ps)[,"Genus"])
-sample_data(ps)$sample_ids <- sample_names(ps)
-```
-
-```{r eval=F}
-
-ps <- biomeUtils::cleanTaxonomy(ps)
-taxa_names(ps) <- make.unique(tax_table(ps)[,"Genus"])
+ps.gen <- tax_glom(ps, "Genus")
+#saveRDS(ps.gen, "data-raw/ps.gen.rds")
+ps.gen <- readRDS("../data-raw/ps.gen.rds")
+ps.rel <- microbiome::transform(ps.gen, "compositional")
+taxa_names(ps.rel) <- make.unique(tax_table(ps.rel)[,"Genus"])
+sample_data(ps.rel)$sample_ids <- sample_names(ps.rel)
 
 ```
 
-
-```{r eval=F}
-sample_variables(ps)
+```{r eval=T}
+sample_variables(ps.rel)[1:10]
 
 # "ILI" "BMI" "sex" "age"
 # "antidepressants" "antibiotics" "T2.diabetes.medication"
 ```
 
 
-```{r eval=F}
-table(meta(ps)[,"ILI"])
+```{r eval=T}
+getSampleTibble(ps.rel) %>% 
+  dplyr::count(ILI)
 ```
 
-```{r eval=F}
-table(meta(ps)[,"sex"])
-table(meta(ps)[,"antidepressants"])
-table(meta(ps)[,"anticoagulants"])
-table(meta(ps)[,"antibiotics"])
-table(meta(ps)[,"statins"])
-table(meta(ps)[,"alphabeta.blocker"])
+```{r eval=T}
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(sex)
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(antidepressants)
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(anticoagulants)
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(antibiotics)
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(statins)
+
+biomeUtils::getSampleTibble(ps.rel) %>% 
+  dplyr::count(alphabeta.blocker)
 
 ```
 
@@ -73,21 +80,20 @@ table(meta(ps)[,"alphabeta.blocker"])
 
 Prepare a tibble from phyloseq object. This tibble consists of ID (for sample) relative abundance of taxa, average and SD of counts of taxa in sample, prop.positive, entropy and C.V.                      
 
-```{r eval=F}
+```{r eval=T}
 
-gen_tab <- prepTaxaAbundanceData(ps, 
-                                 detection_threshold= 0.0001, 
-                                 prevalence_threshold=10/100)
+gen_tab <- prepTaxaAbundanceData(ps.rel,
+                                 detection_threshold= 0.001,
+                                 prevalence_threshold=50/100)
 
 dim(gen_tab)
-head(gen_tab)
 ```
 
 ## Variables to test   
 
 There can be numerous variables that a user might want to test. It is advised to select and specify variables of interest. This has to be done manually because sample data my consists of several other data that are not useful, like primer/barcode sequences, internal codes from sequencing centre, etc.  
 
-```{r eval=F}
+```{r eval=T}
 
 #main_var <- "ILI"
 comord.vars <- c("BMI")
@@ -97,40 +103,33 @@ med.vars <- c("anticoagulants", "antibiotics", "statins","alphabeta.blocker")
 all.vars <- c(comord.vars,med.vars)
 ```
 
-```{r eval=F}
+```{r eval=T}
 
-sample_data(ps)$sex <- ifelse(sample_data(ps)$sex =="M",0,1)
+sample_data(ps.rel)$sex <- ifelse(sample_data(ps.rel)$sex =="M",0,1)
+sample_data(ps.rel)$antidepressants <- ifelse(sample_data(ps.rel)$antidepressants =="N",0,1)
+sample_data(ps.rel)$anticoagulants <- ifelse(sample_data(ps.rel)$anticoagulants =="N",0,1)
+sample_data(ps.rel)$antibiotics <- ifelse(sample_data(ps.rel)$antibiotics =="N",0,1)
+sample_data(ps.rel)$statins <- ifelse(sample_data(ps.rel)$statins =="N",0,1)
+sample_data(ps.rel)$alphabeta.blocker <- ifelse(sample_data(ps.rel)$alphabeta.blocker =="N",0,1)
 
-sample_data(ps)$antidepressants <- ifelse(sample_data(ps)$antidepressants =="N",0,1)
-
-sample_data(ps)$anticoagulants <- ifelse(sample_data(ps)$anticoagulants =="N",0,1)
-
-sample_data(ps)$antibiotics <- ifelse(sample_data(ps)$antibiotics =="N",0,1)
-
-sample_data(ps)$statins <- ifelse(sample_data(ps)$statins =="N",0,1)
-
-sample_data(ps)$alphabeta.blocker <- ifelse(sample_data(ps)$alphabeta.blocker =="N",0,1)
 ```
-
-
-need to *test* 
 
 ## Prep metadata  
 
-```{r eval=F}
+```{r eval=T}
 
-phenotypic.data.1 <- prepSampleData(ps, 
-                                   sample_ids = "sample_ids", 
-                                   reference_group ="C", 
-                                   compare = "ILI", 
-                                   confounder_variables = c("sex", "age"),
-                                   variable_interest=all.vars)
+phenotypic.data.1 <- prepSampleData(ps.rel,
+                                    sample_ids = "sample_ids",
+                                    reference_group ="C",
+                                    compare = "ILI",
+                                    confounder_variables = c("sex", "age"),
+                                    variable_interest=all.vars)
 
 head(phenotypic.data.1)
 
 ```
 ## Strata frequency  
-```{r eval=F}
+```{r eval=T}
 
 frequency.of.strata <- table(phenotypic.data.1$stratum)
 #mean(frequency.of.strata)
@@ -140,70 +139,62 @@ frequency.of.strata
 
 
 ## Data for testing
-```{r eval=F}
+```{r eval=T}
 
 # First column is sample ID so start from second column and stop at column 5 from last
 taxa_select <- colnames(gen_tab)[2:(ncol(gen_tab)-5)]
 
-# the last five columns are 
+# the last five columns are
 other <- c("average","SD","prop.positive","entropy","CV")
 
 #vars.test <- colnames(phenotypic.data.1)[c(2,5:39)]
 # get variables
 vars.test <- c("ILI",all.vars)
 
-data.set.1 <- phenotypic.data.1 %>% 
-  left_join(gen_tab, by = "sample_ids") %>% 
-  relocate(stratum, .after = last_col()) %>% 
-  select(!c(sample_ids, sex, age, age.group)) # age and gender removed as we treat them as confounders
+
+data.set.1 <- phenotypic.data.1 %>%
+  dplyr::left_join(gen_tab, by = "sample_ids") %>%
+  dplyr::relocate(stratum, .after = last_col()) %>%
+  dplyr::select(!c(sample_ids, sex, age, age.group)) # age and gender removed as we treat them as confounders
 # sum statistic with sex and age stratum as blocking factor.
-data.set.1
+head(data.set.1)
+variables_to_test <- c("ILI",all.vars)
 ```
 
 
 microbiome
 ## Type of vars  
 IMPORTANT STEP 
-```{r eval=F}
+```{r eval=T}
 
 variables_to_test <- c("ILI",all.vars)
-
-```
-
-```{r eval=F}
-
-
-
-# BMI is continuous variable 
-TYPES <- c("ordinal","continuous",
+# BMI is continuous variable
+TYPES <- c("categorical","continuous",
            rep("ordinal",4),
            rep("ordinal",length(taxa_select)),
            rep("continuous",5),
            "categorical")
 
-types <- c("categorical","continuous", 
+types <- c("categorical","continuous",
            rep("categorical",4),
            rep("dirac.and.continuous",length(taxa_select)),
            rep("continuous",5),
            "categorical")
+
 
 ```
 
 
 ## Test associations   
 
-```{r eval=F}
+```{r eval=T}
 #get column number that match bacterial abundance
 bac_cols <- which(colnames(data.set.1) %in% taxa_select)
 
 #no.of.factors <- length(variables_to_test)
 #aux.columns <- bac_cols
-variables.of.interest <- colnames(data.set.1)[1:(ncol(data.set.1)-6)]
-nominal.bound.on.FDR <- 0.20
-log.scale <- TRUE
+#variables.of.interest <- colnames(data.set.1)[1:(ncol(data.set.1)-6)]
 
-set.seed(1938)
-B <- 1000
 ```
 
 

@@ -21,7 +21,7 @@ doAssociationAnalysis(
 )
 }
 \arguments{
-\item{data_for_testing}{A data frame combined from transform_to_fractions and prep_metadata.}
+\item{data_for_testing}{A data frame combined from prepTaxaAbundanceData and prepSampleData}
 
 \item{B}{Resampling default to 100000}
 
@@ -33,7 +33,7 @@ doAssociationAnalysis(
 
 \item{nominal_bound_on_FDR}{cut-off for multiple testing. Default=0.25}
 
-\item{phen_data}{data frame output from prep_metadata()}
+\item{phen_data}{data frame output from prepSampleData()}
 
 \item{compare_label}{label to save files.}
 

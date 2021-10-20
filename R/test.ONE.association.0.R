@@ -23,13 +23,17 @@ test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.o
   # 	columns <- c(1,193); B <- 100000; Spearman.rather.than.AD <- TRUE; TYPES[columns]
   stratum <- p.value <- test <- sample.characteristics <- Sign <- NA
 
-  response.by.treatment <- na.omit(subset(data_for_testing,
-                                          select = c(variables.of.interest[columns], "stratum")))
+  # chose the data for analysis.
+  response.by.treatment <- subset(data_for_testing,
+                                  select = c(variables.of.interest[columns], "stratum"))
+  response.by.treatment <- na.omit(response.by.treatment)
 
   print(paste0("test.ONE.association.0 ", names(response.by.treatment)[1], " vs " ,names(response.by.treatment)[2]))
-  # 	head(response.by.treatment); str(response.by.treatment)
 
-  checks.by.stratum <- t(sapply(response.by.treatment$stratum, check.strata, response.by.treatment))
+  checks.by.stratum <- t(sapply(response.by.treatment$stratum,
+                                check.strata,
+                                response.by.treatment))
+
   good.strata <- response.by.treatment$stratum[checks.by.stratum > 1]
 
   #### added by sudarshan ########
@@ -42,6 +46,7 @@ test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.o
 
   if (length(good.strata) > 1) {
     response.by.treatment <- subset(response.by.treatment, is.element(stratum, good.strata))
+    # rename for consistancy
     names(response.by.treatment) <- c("treatment", "response", "stratum")
     rownames(response.by.treatment) <- NULL
 
@@ -49,6 +54,7 @@ test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.o
     type.2 <- TYPES[columns[2]]
     if ((type.1 == "binary" & type.2 != "binary") | (type.1 == "categorical" & (type.2 != "categorical" & type.2 != "binary")) |
       (type.1 == "ordinal" & (type.2 != "ordinal" & type.2 != "categorical" & type.2 != "binary"))) {
+
       response.by.treatment <- response.by.treatment[, c(2, 1, 3)]
 
       type.2 <- TYPES[columns[1]]
@@ -66,9 +72,9 @@ test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.o
       print("independence.test")
 
       independence.test <- independence_test(response ~ treatment | stratum,
-        data = response.by.treatment,
-        distribution = "asymptotic", teststat = "scalar"
-      )
+                                             data = response.by.treatment,
+                                             distribution = "asymptotic",
+                                             teststat = "scalar")
       p.value <- as.numeric(pvalue(independence.test))
       Sign <- sign(statistic(spearman_test(response ~ treatment | stratum,
         data = response.by.treatment,
@@ -137,8 +143,9 @@ test.ONE.association.0 <- function(columns, data_for_testing, TYPES, variables.o
         is.element(type.2, c("binary", "categorical", "ordinal")) & (tested == FALSE)) {
       print("CHM.test")
       CHM.test <- cmh_test(as.factor(response) ~ as.factor(treatment) | stratum,
-        data = response.by.treatment, distribution = "asymptotic"
-      )
+                           data = response.by.treatment,
+                           distribution = "asymptotic")
+
       p.value <- as.numeric(pvalue(CHM.test))
       if ((type.1 == "binary" & type.2 != "categorical") | (type.2 == "binary" & type.1 != "categorical")) {
         Sign <- sign(cor(

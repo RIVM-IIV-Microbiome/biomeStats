@@ -24,10 +24,10 @@ test.ONE.association <- function(columns, data_for_testing, TYPES, variables.of.
   stratum <- NULL
   p.value <- test <- sample.characteristics <- Sign <- NA
 
-  response.by.treatment <- na.omit(subset(data_for_testing,
-    select = c(variables.of.interest[columns], "stratum")
-  ))
-  # 	head(response.by.treatment); str(response.by.treatment)
+  # chose the data for analysis.
+  response.by.treatment <- subset(data_for_testing,
+                                  select = c(variables.of.interest[columns], "stratum"))
+  response.by.treatment <- na.omit(response.by.treatment)
 
   checks.by.stratum <- t(sapply(response.by.treatment$stratum, check.strata, response.by.treatment))
   good.strata <- response.by.treatment$stratum[checks.by.stratum > 1]
@@ -57,14 +57,13 @@ test.ONE.association <- function(columns, data_for_testing, TYPES, variables.of.
       (is.element(type.2, c("binary")) &
         is.element(type.1, c("ordinal")))) {
       independence.test <- coin::independence_test(response ~ treatment | stratum,
-        data = response.by.treatment,
-        distribution = coin::approximate(nresample = B.i), teststat = "scalar"
-      )
+                                                   data = response.by.treatment,
+                                                   distribution = coin::approximate(nresample = B.i),
+                                                   teststat = "scalar")
       p.value <- as.numeric(coin::pvalue(independence.test))
       Sign <- sign(coin::statistic(coin::spearman_test(response ~ treatment | stratum,
-        data = response.by.treatment,
-        distribution = "asymptotic"
-      )))
+                                                       data = response.by.treatment,
+                                                       distribution = "asymptotic")))
       list.of.samples <- split(response.by.treatment$response, f = response.by.treatment$treatment)
       test <- "Sum statistic"
       k <- length(list.of.samples)
@@ -95,9 +94,8 @@ test.ONE.association <- function(columns, data_for_testing, TYPES, variables.of.
     if (is.element(type.2, c("binary", "categorical")) &
       is.element(type.1, c("dirac.and.continuous", "continuous")) & (tested == FALSE)) {
       KW.test <- coin::kruskal_test(response ~ as.factor(treatment) | stratum,
-        data = response.by.treatment,
-        distribution = approximate(nresample = B.i)
-      )
+                                    data = response.by.treatment,
+                                    distribution = approximate(nresample = B.i))
       p.value <- as.numeric(pvalue(KW.test))
       if (type.2 == "binary") {
         Sign <- sign(cor(
