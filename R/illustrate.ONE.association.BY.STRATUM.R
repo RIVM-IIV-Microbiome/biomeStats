@@ -16,7 +16,6 @@
 #'
 #' @export
 
-
 illustrate.ONE.association.BY.STRATUM <- function(data.for.plotting, TYPES,
                                                   stratum, x.limits, y.limits,
                                                   log_scale) {

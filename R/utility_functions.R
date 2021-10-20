@@ -63,7 +63,7 @@ check.strata <- function(s, data.to.test) {
 #' @importFrom stats as.formula qnorm sd
 #' @importFrom grDevices dev.off pdf
 #' @export
-#
+
 Wilson.interval <- function(frequency, n, confidence) {
   kappa <- qnorm(1 - (1 - confidence) / 2)
   estimate <- frequency / n
