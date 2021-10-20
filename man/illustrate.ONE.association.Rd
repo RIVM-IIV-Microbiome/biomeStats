@@ -2,7 +2,7 @@
 % Please edit documentation in R/illustrate.ONE.association.R
 \name{illustrate.ONE.association}
 \alias{illustrate.ONE.association}
-\title{Illustrate.ONE.association}
+\title{Illustrate ONE association}
 \usage{
 illustrate.ONE.association(columns, data.for.plotting, types, log_scale)
 }
@@ -16,7 +16,7 @@ illustrate.ONE.association(columns, data.for.plotting, types, log_scale)
 \item{log_scale}{use log-scale to plot abundances}
 }
 \description{
-Illustrate.ONE.association
+Illustrate ONE association
 }
 \details{
 Plots association

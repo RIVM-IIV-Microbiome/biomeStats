@@ -1,4 +1,4 @@
-#' @title Illustrate.ONE.association
+#' @title Illustrate ONE association
 #' @details Plots association
 #' @param columns dataset variable to specifically test
 #' @param data.for.plotting dataset to use for plotting

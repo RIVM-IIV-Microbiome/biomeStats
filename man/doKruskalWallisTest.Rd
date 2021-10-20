@@ -59,7 +59,6 @@ kw_results <- doKruskalWallisTest(ps.rel,
                                   effect_size = TRUE)
 
 print(kw_results)
-
 }
 \seealso{
 \code{\link[rstatix]{kruskal_test}}
