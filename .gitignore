@@ -6,11 +6,10 @@
 *~
 inst/extras/*.rds
 inst/extras/*.R
-
+inst/exdata/*.R
 
 # Never put this in version control
 OAtoken
-*.R
 *.rds
 data-raw/old/ili_data.rda
 data-raw/ILI pseq

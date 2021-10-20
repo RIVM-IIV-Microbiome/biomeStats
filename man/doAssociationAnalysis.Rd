@@ -45,7 +45,7 @@ doAssociationAnalysis(
 
 \item{name_of_stratification}{label of stratum e.g."Sex and age-group"}
 
-\item{verbose}{Logical. Default=TRUE}
+\item{verbose}{TRUE}
 }
 \description{
 Check for taxa-metadata associations
