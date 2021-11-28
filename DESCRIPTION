@@ -1,7 +1,7 @@
 Package: biomeStats
 Type: Package
 Title: Methods for carrying out association studies of the microbiome
-Version: 00.00.04
+Version: 00.00.05
 Authors@R: 
     c(person(given = "Sudarshan", family = "Shetty", role = c("aut", "cre"),
              email = "sudarshanshetty9@gmail.com",

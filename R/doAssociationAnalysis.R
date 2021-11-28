@@ -77,12 +77,7 @@ doAssociationAnalysis <- function(data_for_testing,
 
   for(f in (1:no_of_factors)){
 
-    #if(verbose==TRUE){
-    # message(paste0("Processing.. ", test.i[1], " vs ", test.i[2]))
-    #}
-
     start.time <- Sys.time()
-
     columns.f <- cbind(f,aux_columns)
     #head(columns.f)
     tests <- NULL
@@ -95,13 +90,11 @@ doAssociationAnalysis <- function(data_for_testing,
                                        data_for_testing,
                                        aux_TYPES,variables.of.interest)
 
-      #if(verbose==TRUE){
-      # message(paste0("Processing.. ", test.i[1], " vs ", test.i[2]))
-      #}
-
       p.value.i <- as.numeric(test.i[3])
       #p.value.i
-      if(is.na(p.value.i)){p.value.i <- 2; B.i <- 2*B}
+      if(is.na(p.value.i)){
+        p.value.i <- 2; B.i <- 2*B
+        }
       if(p.value.i<1 & p.value.i>0){
         B.i <- min(max(B,ceiling(400/((1-p.value.i)*p.value.i))),1000000*10*10*10)
       }else{
@@ -119,6 +112,7 @@ doAssociationAnalysis <- function(data_for_testing,
         CI.p.value.i <- paste("[",CI.p.value.i[1],",",CI.p.value.i[2],"]",collapse="")
       }else{
         #print(c(i,B.i))
+
         tests.i <- test.ONE.association(as.vector(columns.f[i,]),
                                         data_for_testing,aux_TYPES,
                                         variables.of.interest,

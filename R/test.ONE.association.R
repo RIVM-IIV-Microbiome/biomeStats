@@ -119,7 +119,8 @@ test.ONE.association <- function(columns, data_for_testing, TYPES, variables.of.
     if (is.element(type.1, c("binary", "categorical", "ordinal")) &
       is.element(type.2, c("binary", "categorical", "ordinal")) & (tested == FALSE)) {
       CHM.test <- coin::cmh_test(as.factor(response) ~ as.factor(treatment) | stratum,
-        data = response.by.treatment, distribution = approximate(nresample = B.i)
+                                 data = response.by.treatment,
+                                 distribution = approximate(nresample = B.i)
       )
       p.value <- as.numeric(pvalue(CHM.test))
       if ((type.1 == "binary" & type.2 != "categorical") | (type.2 == "binary" & type.1 != "categorical")) {
