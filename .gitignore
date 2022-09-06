@@ -13,3 +13,4 @@ OAtoken
 *.rds
 data-raw/old/ili_data.rda
 data-raw/ILI pseq
+data-raw/*.R

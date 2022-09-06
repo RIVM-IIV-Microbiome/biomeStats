@@ -29,7 +29,7 @@ dis_col <- c(L1="#6883ba", C = "#166f65", `NA`="black")
 ```
 
 # Import data  
-```{r eval=T}
+```{r eval=F}
 data("FuentesIliGutData")
 ps <- subset_samples(FuentesIliGutData, ILI %in% c("C", "L1"))
 ps.gen <- tax_glom(ps, "Genus")
@@ -41,7 +41,7 @@ sample_data(ps.rel)$sample_ids <- sample_names(ps.rel)
 
 ```
 
-```{r eval=T}
+```{r eval=F}
 sample_variables(ps.rel)[1:10]
 
 # "ILI" "BMI" "sex" "age"
@@ -49,12 +49,12 @@ sample_variables(ps.rel)[1:10]
 ```
 
 
-```{r eval=T}
+```{r eval=F}
 getSampleTibble(ps.rel) %>% 
   dplyr::count(ILI)
 ```
 
-```{r eval=T}
+```{r eval=F}
 
 biomeUtils::getSampleTibble(ps.rel) %>% 
   dplyr::count(sex)
@@ -80,7 +80,7 @@ biomeUtils::getSampleTibble(ps.rel) %>%
 
 Prepare a tibble from phyloseq object. This tibble consists of ID (for sample) relative abundance of taxa, average and SD of counts of taxa in sample, prop.positive, entropy and C.V.                      
 
-```{r eval=T}
+```{r eval=F}
 
 gen_tab <- prepTaxaAbundanceData(ps.rel,
                                  detection_threshold= 0.001,
@@ -94,7 +94,7 @@ dim(gen_tab)
 
 There can be numerous variables that a user might want to test. It is advised to select and specify variables of interest. This has to be done manually because sample data my consists of several other data that are not useful, like primer/barcode sequences, internal codes from sequencing centre, etc.  
 
-```{r eval=T}
+```{r eval=F}
 
 #main_var <- "ILI"
 comord.vars <- c("BMI")
@@ -104,7 +104,7 @@ med.vars <- c("anticoagulants", "antibiotics", "statins","alphabeta.blocker")
 all.vars <- c(comord.vars,med.vars)
 ```
 
-```{r eval=T}
+```{r eval=F}
 
 sample_data(ps.rel)$sex <- ifelse(sample_data(ps.rel)$sex =="M",0,1)
 sample_data(ps.rel)$antidepressants <- ifelse(sample_data(ps.rel)$antidepressants =="N",0,1)
@@ -117,7 +117,7 @@ sample_data(ps.rel)$alphabeta.blocker <- ifelse(sample_data(ps.rel)$alphabeta.bl
 
 ## Prep metadata  
 
-```{r eval=T}
+```{r eval=F}
 
 phenotypic.data.1 <- prepSampleData(ps.rel,
                                     sample_ids = "sample_ids",
@@ -130,7 +130,7 @@ head(phenotypic.data.1)
 
 ```
 ## Strata frequency  
-```{r eval=T}
+```{r eval=F}
 
 frequency.of.strata <- table(phenotypic.data.1$stratum)
 #mean(frequency.of.strata)
@@ -140,7 +140,7 @@ frequency.of.strata
 
 
 ## Data for testing
-```{r eval=T}
+```{r eval=F}
 
 # First column is sample ID so start from second column and stop at column 5 from last
 taxa_select <- colnames(gen_tab)[2:(ncol(gen_tab)-5)]
@@ -166,7 +166,7 @@ variables_to_test <- c("ILI",all.vars)
 microbiome
 ## Type of vars  
 IMPORTANT STEP 
-```{r eval=T}
+```{r eval=F}
 
 variables_to_test <- c("ILI",all.vars)
 # BMI is continuous variable
@@ -188,7 +188,7 @@ types <- c("categorical","continuous",
 
 ## Test associations   
 
-```{r eval=T}
+```{r eval=F}
 #get column number that match bacterial abundance
 bac_cols <- which(colnames(data.set.1) %in% taxa_select)
 

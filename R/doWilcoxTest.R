@@ -38,7 +38,7 @@
 #' data("FuentesIliGutData")
 #' ps <- subset_samples(FuentesIliGutData, ILI %in% c("C", "L1"))
 #' ps.rel <- microbiome::transform(ps, "compositional")
-#' ps.rel <- core(ps.rel, detection=0.0001, prevalence=50/100)
+#' ps.rel <- core(ps.rel, detection=0.001, prevalence=50/100)
 #'
 #' wilcox_results <- doWilcoxTest(ps.rel,
 #'                                sample_group = "ILI",
@@ -64,7 +64,7 @@ doWilcoxTest <- function(x,
                          adj_method = "BH",
                          ...){
 
-  feat_tib <- Comparison <- variable <- wilcox_out <- NULL
+  feat_tib <- Comparison <- variable <- wilcox_out <- features <- NULL
 
   feat_tib <- microbiome::abundances(x) %>%
     as.data.frame() %>%

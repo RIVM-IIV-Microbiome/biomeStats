@@ -57,7 +57,7 @@ taxaPV <- function(x,
                    sampling_n =9,
                    round_pv_vals = 3){
 
-  if (class(x) != "phyloseq") {
+  if (!is(x, "phyloseq")) {
     stop("Input is not an object of phyloseq class")
   }
 
